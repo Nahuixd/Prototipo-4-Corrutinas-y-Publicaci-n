@@ -3,8 +3,12 @@ local niveles = require("src.niveles")
 local dialogos = require("src.dialogos")
 
 local function cargarImagenSegura(ruta)
-    -- Se añade la comprobación 'love' y 'love.filesystem' para evitar el error del analizador
-    if love and love.filesystem and love.filesystem.getInfo(ruta) then
+    -- Comprobación segura para WebGL/HTML5
+    local exito_check, tiene_archivo = pcall(function() 
+        return love.filesystem and love.filesystem.getInfo and love.filesystem.getInfo(ruta) 
+    end)
+    
+    if exito_check and tiene_archivo then
         local exito, imagen = pcall(love.graphics.newImage, ruta)
         if exito then return imagen end
     end

@@ -8,7 +8,15 @@ local Item = require("src.item")
 local Obstaculo = require("src.obstaculo")
 
 local function cargarImagen(ruta, r, g, b, w, h)
-    if love.filesystem.getInfo(ruta) then return love.graphics.newImage(ruta) end
+    -- Comprobación segura para WebGL/HTML5
+    local exito_check, tiene_archivo = pcall(function() 
+        return love.filesystem and love.filesystem.getInfo and love.filesystem.getInfo(ruta) 
+    end)
+    
+    if exito_check and tiene_archivo then 
+        return love.graphics.newImage(ruta) 
+    end
+    
     w, h = w or 32, h or 32
     local canvas = love.graphics.newCanvas(w, h)
     love.graphics.setCanvas(canvas)
@@ -22,7 +30,12 @@ end
 
 local function cargarSonido(ruta, tipo)
     tipo = tipo or "static"
-    if love.filesystem.getInfo(ruta) then
+    -- Comprobación segura para WebGL/HTML5
+    local exito_check, tiene_archivo = pcall(function() 
+        return love.filesystem and love.filesystem.getInfo and love.filesystem.getInfo(ruta) 
+    end)
+    
+    if exito_check and tiene_archivo then
         local exito, source = pcall(love.audio.newSource, ruta, tipo)
         if exito then return source end
     end
@@ -237,7 +250,7 @@ function juego:update(dt)
             end
         end
 
-        -- NUEVO: Colisiones de los proyectiles del jefe con el jugador
+        -- Colisiones de los proyectiles del jefe con el jugador
         if self.jefe.proyectiles and self.jugador then
             for i = #self.jefe.proyectiles, 1, -1 do
                 local p = self.jefe.proyectiles[i]
